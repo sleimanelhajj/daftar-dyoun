@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLoader } from "../context/LoaderContext"; // <-- Add this import
 import {
   Form,
   Button,
@@ -23,13 +24,21 @@ function Msarif() {
   const [filterDate, setFilterDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState("view");
   const [editIdx, setEditIdx] = useState(null);
+  const { setLoading } = useLoader(); // <-- Add this
 
   // Fetch expenses from backend
   useEffect(() => {
-    fetch(API_URL)
+    const token = localStorage.getItem("token");
+    setLoading(true); // <-- Show loader
+    fetch(API_URL, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => setExpenses(data))
-      .catch(() => setExpenses([]));
+      .catch(() => setExpenses([]))
+      .finally(() => setLoading(false)); // <-- Hide loader
   }, []);
 
   const resetForm = () => {
@@ -89,12 +98,17 @@ function Msarif() {
 
   // "Update All" button handler
   const handleUpdateAll = async () => {
+    const token = localStorage.getItem("token");
+    setLoading(true); // <-- Show loader
     await fetch(`${API_URL}/bulk`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify(expenses),
     });
-    alert("All expenses updated on server!");
+    setLoading(false); // <-- Hide loader
   };
 
   // Filter expenses by selected date
@@ -109,7 +123,7 @@ function Msarif() {
         <Card>
           <Card.Body>
             <Card.Title className="mb-4 text-primary text-center">
-              Msarif (Expenses)
+              Msarif
             </Card.Title>
             <Nav
               variant="tabs"

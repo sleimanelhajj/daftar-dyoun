@@ -7,6 +7,7 @@ const MsarifSchema = new mongoose.Schema({
   currency: String,
   usdAmount: Number,
   lbpAmount: Number,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 });
 
 module.exports = mongoose.model('Msarif', MsarifSchema);

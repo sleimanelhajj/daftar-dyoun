@@ -11,6 +11,7 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
+import { useLoader } from "../context/LoaderContext";
 
 const API_URL = "http://localhost:5000/api/dyoun";
 
@@ -27,12 +28,21 @@ function Dyoun() {
   const [activeTab, setActiveTab] = useState("view");
   const [editIdx, setEditIdx] = useState(null);
   const [addToExisting, setAddToExisting] = useState(false);
+  const { setLoading } = useLoader();
 
+  // Fetch debts from backend
   useEffect(() => {
-    fetch(API_URL)
+    const token = localStorage.getItem("token");
+    setLoading(true);
+    fetch(API_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setDebts(data))
-      .catch(() => setDebts([]));
+      .catch(() => setDebts([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const resetForm = () => {
@@ -112,13 +122,19 @@ function Dyoun() {
     setAddToExisting(false);
   };
 
+  // When updating all debts
   const handleUpdateAll = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
     await fetch(`${API_URL}/bulk`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(debts),
     });
-    alert("All debts updated on server!");
+    setLoading(false);
   };
 
   // Calculate summary
@@ -183,7 +199,13 @@ function Dyoun() {
                         type="tel"
                         placeholder="e.g. 96170123456"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          // Only allow digits
+                          const val = e.target.value.replace(/\D/g, "");
+                          setPhone(val);
+                        }}
                         required
                       />
                     </Form.Group>

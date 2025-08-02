@@ -5,21 +5,6 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// Middleware to check token
-function checkToken(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "No token" });
-  }
-  try {
-    const decoded = jwt.verify(auth.split(" ")[1], "your_jwt_secret");
-    req.userId = decoded.userId;
-    next();
-  } catch {
-    res.status(401).json({ error: "Invalid token" });
-  }
-}
-
 // Signup
 router.post('/signup', async (req, res) => {
   const { email, password } = req.body;
@@ -54,4 +39,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = { router, checkToken };
+module.exports = router;

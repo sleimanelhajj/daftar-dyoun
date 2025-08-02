@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect('mongodb+srv://sleimanelhajj:snkc%40890@daftar-dyoun.ng3efn1.mongodb.net/?retryWrites=true&w=majority&appName=daftar-dyoun', {
-  useNewUrlParser: true, // These options are deprecated but won't hurt
+  useNewUrlParser: true, 
   useUnifiedTopology: true,
 });
 
