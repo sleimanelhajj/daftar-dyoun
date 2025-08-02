@@ -19,7 +19,9 @@ function Dyoun() {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("theyOweMe"); // "theyOweMe" or "iOweThem"
   const [currency, setCurrency] = useState("USD");
-  const [dyounDate, setDyounDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dyounDate, setDyounDate] = useState(() =>
+    new Date().toISOString().slice(0, 10)
+  );
   const [activeTab, setActiveTab] = useState("view");
   const [editIdx, setEditIdx] = useState(null);
   const [addToExisting, setAddToExisting] = useState(false);
@@ -52,7 +54,7 @@ function Dyoun() {
       if (addToExisting) {
         // Find entry with same name, type, and currency
         const idx = debts.findIndex(
-          d =>
+          (d) =>
             d.name.trim().toLowerCase() === name.trim().toLowerCase() &&
             d.type === type &&
             d.currency === currency &&
@@ -103,16 +105,16 @@ function Dyoun() {
 
   // Calculate summary
   const totalTheyOweMe = debts
-    .filter(d => d.type === "theyOweMe" && d.currency === "USD")
+    .filter((d) => d.type === "theyOweMe" && d.currency === "USD")
     .reduce((sum, d) => sum + d.amount, 0);
   const totalTheyOweMeLBP = debts
-    .filter(d => d.type === "theyOweMe" && d.currency === "LBP")
+    .filter((d) => d.type === "theyOweMe" && d.currency === "LBP")
     .reduce((sum, d) => sum + d.amount, 0);
   const totalIOweThem = debts
-    .filter(d => d.type === "iOweThem" && d.currency === "USD")
+    .filter((d) => d.type === "iOweThem" && d.currency === "USD")
     .reduce((sum, d) => sum + d.amount, 0);
   const totalIOweThemLBP = debts
-    .filter(d => d.type === "iOweThem" && d.currency === "LBP")
+    .filter((d) => d.type === "iOweThem" && d.currency === "LBP")
     .reduce((sum, d) => sum + d.amount, 0);
 
   return (
@@ -121,84 +123,89 @@ function Dyoun() {
         <Card>
           <Card.Body>
             <Card.Title className="mb-4 text-primary text-center">
-              Dyoun (Money Owed)
+              Dyoun
             </Card.Title>
             <Nav
               variant="tabs"
               activeKey={activeTab}
-              onSelect={(k) => { setActiveTab(k); resetForm(); }}
+              onSelect={(k) => {
+                setActiveTab(k);
+                resetForm();
+              }}
               className="justify-content-center mb-4"
             >
               <Nav.Item>
                 <Nav.Link eventKey="view">View Debts</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="add">{editIdx !== null ? "Edit Debt" : "Add New Debt"}</Nav.Link>
+                <Nav.Link eventKey="add">
+                  {editIdx !== null ? "Edit Debt" : "Add New Debt"}
+                </Nav.Link>
               </Nav.Item>
             </Nav>
             {activeTab === "add" && (
               <Form onSubmit={addDebt}>
                 <Row className="align-items-end">
-                  <Col xs={12} md={3}>
+                  <Col xs={12} md={5}>
                     <Form.Group controlId="debtName">
                       <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
                         placeholder="e.g. John Doe"
                         value={name}
-                        onChange={e => setName(e.target.value)}
+                        onChange={(e) => setName(e.target.value)}
                         required
                       />
                     </Form.Group>
                   </Col>
-                  <Col xs={12} md={3}>
+                  <Col xs={12} md={4}>
                     <Form.Group controlId="debtPhone">
                       <Form.Label>Phone</Form.Label>
                       <Form.Control
                         type="tel"
                         placeholder="e.g. 96170123456"
                         value={phone}
-                        onChange={e => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(e.target.value)}
                         required
                       />
                     </Form.Group>
                   </Col>
-                  <Col xs={12} md={2}>
-                    <Form.Group controlId="debtAmount">
-                      <Form.Label>Amount</Form.Label>
-                      <Form.Control
-                        type="number"
-                        min="0"
-                        placeholder="Enter amount"
-                        value={amount}
-                        onChange={e => setAmount(e.target.value)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={12} md={2}>
-                    <Form.Group controlId="debtCurrency">
-                      <Form.Label>Currency</Form.Label>
-                      <Form.Select
-                        value={currency}
-                        onChange={e => setCurrency(e.target.value)}
-                      >
-                        <option value="USD">USD</option>
-                        <option value="LBP">LBP</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col xs={12} md={2}>
+                                    <Col xs={12} md={3}>
                     <Form.Group controlId="debtDate">
                       <Form.Label>Date</Form.Label>
                       <Form.Control
                         type="date"
                         value={dyounDate}
-                        onChange={e => setDyounDate(e.target.value)}
+                        onChange={(e) => setDyounDate(e.target.value)}
                         required
+                        className="w-100" // <-- Bootstrap full width
                       />
                     </Form.Group>
                   </Col>
+                  <Col xs={12} md={4}>
+                    <Form.Group controlId="debtAmount">
+                      <Form.Label>Amount</Form.Label>
+                      <InputGroup>
+                        <Form.Control
+                          type="number"
+                          min="0"
+                          placeholder="Enter amount"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          required
+                        />
+                        <Form.Select
+                          value={currency}
+                          onChange={(e) => setCurrency(e.target.value)}
+                          style={{ maxWidth: 90 }}
+                        >
+                          <option value="USD">USD</option>
+                          <option value="LBP">LBP</option>
+                        </Form.Select>
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+
                 </Row>
                 <Row className="align-items-end mt-2">
                   <Col xs={12} md={6}>
@@ -206,7 +213,7 @@ function Dyoun() {
                       <Form.Label>Type</Form.Label>
                       <Form.Select
                         value={type}
-                        onChange={e => setType(e.target.value)}
+                        onChange={(e) => setType(e.target.value)}
                       >
                         <option value="theyOweMe">They owe me</option>
                         <option value="iOweThem">I owe them</option>
@@ -225,7 +232,7 @@ function Dyoun() {
                       type="checkbox"
                       label="Add to existing amount"
                       checked={addToExisting}
-                      onChange={e => setAddToExisting(e.target.checked)}
+                      onChange={(e) => setAddToExisting(e.target.checked)}
                     />
                   </Form.Group>
                 )}
@@ -245,12 +252,25 @@ function Dyoun() {
                       <Row>
                         <Col xs={3}>{debt.name}</Col>
                         <Col xs={3}>{debt.phone}</Col>
-                        <Col xs={2} className={debt.type === "theyOweMe" ? "text-success" : "text-danger"}>
+                        <Col
+                          xs={2}
+                          className={
+                            debt.type === "theyOweMe"
+                              ? "text-success"
+                              : "text-danger"
+                          }
+                        >
                           {debt.type === "theyOweMe" ? "+" : "-"}
                           {debt.currency === "USD" ? "$" : "LBP "}
-                          {debt.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          {debt.amount.toLocaleString(undefined, {
+                            maximumFractionDigits: 2,
+                          })}
                         </Col>
-                        <Col xs={2} className="text-secondary" style={{ fontSize: "0.9em" }}>
+                        <Col
+                          xs={2}
+                          className="text-secondary"
+                          style={{ fontSize: "0.9em" }}
+                        >
                           {debt.date}
                         </Col>
                         <Col xs={2} className="text-end">
@@ -261,18 +281,34 @@ function Dyoun() {
                             size="sm"
                             align="end"
                           >
-                            <Dropdown.Item onClick={() => handleEdit(debt, idx)}>
+                            <Dropdown.Item
+                              onClick={() => handleEdit(debt, idx)}
+                            >
                               Edit
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleDelete(idx)} className="text-danger">
+                            <Dropdown.Item
+                              onClick={() => handleDelete(idx)}
+                              className="text-danger"
+                            >
                               Delete
                             </Dropdown.Item>
                             <Dropdown.Item
                               onClick={() => {
                                 const msg = encodeURIComponent(
-                                  `Hi ${debt.name}, this is a reminder that you ${debt.type === "theyOweMe" ? "owe me" : "I owe you"} ${debt.currency === "USD" ? "$" : "LBP "}${debt.amount}.`
+                                  `Hi ${
+                                    debt.name
+                                  }, this is a reminder that you ${
+                                    debt.type === "theyOweMe"
+                                      ? "owe me"
+                                      : "I owe you"
+                                  } ${debt.currency === "USD" ? "$" : "LBP "}${
+                                    debt.amount
+                                  }.`
                                 );
-                                window.open(`https://wa.me/${debt.phone}?text=${msg}`, "_blank");
+                                window.open(
+                                  `https://wa.me/${debt.phone}?text=${msg}`,
+                                  "_blank"
+                                );
                               }}
                               className="text-success"
                             >
@@ -286,8 +322,29 @@ function Dyoun() {
                 </ListGroup>
                 <div className="mt-3 text-end">
                   <strong>
-                    Total Owed To Me: <span className="text-success">${totalTheyOweMe.toFixed(2)}</span> / <span className="text-success">LBP {totalTheyOweMeLBP.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span><br />
-                    Total I Owe: <span className="text-danger">${totalIOweThem.toFixed(2)}</span> / <span className="text-danger">LBP {totalIOweThemLBP.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    Total Owed To Me:{" "}
+                    <span className="text-success">
+                      ${totalTheyOweMe.toFixed(2)}
+                    </span>{" "}
+                    /{" "}
+                    <span className="text-success">
+                      LBP{" "}
+                      {totalTheyOweMeLBP.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </span>
+                    <br />
+                    Total I Owe:{" "}
+                    <span className="text-danger">
+                      ${totalIOweThem.toFixed(2)}
+                    </span>{" "}
+                    /{" "}
+                    <span className="text-danger">
+                      LBP{" "}
+                      {totalIOweThemLBP.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </span>
                   </strong>
                 </div>
               </>
