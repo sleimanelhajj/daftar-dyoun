@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -12,6 +12,7 @@ import {
 import MsarifStats from "./MsarifStats";
 
 const LBP_RATE = 89000;
+const API_URL = "http://localhost:5000/api/msarif"; // Change if deploying
 
 function Msarif() {
   const [expenses, setExpenses] = useState([]);
@@ -22,6 +23,14 @@ function Msarif() {
   const [filterDate, setFilterDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState("view");
   const [editIdx, setEditIdx] = useState(null);
+
+  // Fetch expenses from backend
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setExpenses(data))
+      .catch(() => setExpenses([]));
+  }, []);
 
   const resetForm = () => {
     setAmount("");
@@ -51,15 +60,16 @@ function Msarif() {
       lbpAmount,
     };
 
+    let updated;
     if (editIdx !== null) {
       // Edit mode
-      const updated = [...expenses];
+      updated = [...expenses];
       updated[editIdx] = expenseObj;
-      setExpenses(updated);
     } else {
       // Add mode
-      setExpenses([...expenses, expenseObj]);
+      updated = [...expenses, expenseObj];
     }
+    setExpenses(updated);
     resetForm();
     setActiveTab("view");
   };
@@ -75,6 +85,16 @@ function Msarif() {
     setDate(exp.date);
     setEditIdx(idx);
     setActiveTab("add");
+  };
+
+  // "Update All" button handler
+  const handleUpdateAll = async () => {
+    await fetch(`${API_URL}/bulk`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(expenses),
+    });
+    alert("All expenses updated on server!");
   };
 
   // Filter expenses by selected date
@@ -248,6 +268,11 @@ function Msarif() {
                       maximumFractionDigits: 0,
                     })}
                   </strong>
+                </div>
+                <div className="mt-3 text-end">
+                  <Button variant="success" onClick={handleUpdateAll}>
+                    Update All (Sync to Server)
+                  </Button>
                 </div>
               </>
             )}

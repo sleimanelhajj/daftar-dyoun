@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -11,6 +11,8 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
+
+const API_URL = "http://localhost:5000/api/dyoun";
 
 function Dyoun() {
   const [debts, setDebts] = useState([]);
@@ -25,6 +27,13 @@ function Dyoun() {
   const [activeTab, setActiveTab] = useState("view");
   const [editIdx, setEditIdx] = useState(null);
   const [addToExisting, setAddToExisting] = useState(false);
+
+  useEffect(() => {
+    fetch(API_URL)
+      .then((res) => res.json())
+      .then((data) => setDebts(data))
+      .catch(() => setDebts([]));
+  }, []);
 
   const resetForm = () => {
     setName("");
@@ -103,6 +112,15 @@ function Dyoun() {
     setAddToExisting(false);
   };
 
+  const handleUpdateAll = async () => {
+    await fetch(`${API_URL}/bulk`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(debts),
+    });
+    alert("All debts updated on server!");
+  };
+
   // Calculate summary
   const totalTheyOweMe = debts
     .filter((d) => d.type === "theyOweMe" && d.currency === "USD")
@@ -170,7 +188,7 @@ function Dyoun() {
                       />
                     </Form.Group>
                   </Col>
-                                    <Col xs={12} md={3}>
+                  <Col xs={12} md={3}>
                     <Form.Group controlId="debtDate">
                       <Form.Label>Date</Form.Label>
                       <Form.Control
@@ -205,7 +223,6 @@ function Dyoun() {
                       </InputGroup>
                     </Form.Group>
                   </Col>
-
                 </Row>
                 <Row className="align-items-end mt-2">
                   <Col xs={12} md={6}>
@@ -346,6 +363,11 @@ function Dyoun() {
                       })}
                     </span>
                   </strong>
+                </div>
+                <div className="mt-3 text-end">
+                  <Button variant="success" onClick={handleUpdateAll}>
+                    Update All (Sync to Server)
+                  </Button>
                 </div>
               </>
             )}
