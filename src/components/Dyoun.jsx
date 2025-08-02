@@ -8,11 +8,14 @@ import {
   Col,
   InputGroup,
   Nav,
+  Dropdown,
+  DropdownButton,
 } from "react-bootstrap";
 
 function Dyoun() {
   const [debts, setDebts] = useState([]);
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState(""); // <-- Add phone state
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("theyOweMe"); // "theyOweMe" or "iOweThem"
   const [currency, setCurrency] = useState("USD");
@@ -23,6 +26,7 @@ function Dyoun() {
 
   const resetForm = () => {
     setName("");
+    setPhone(""); // <-- Reset phone
     setAmount("");
     setType("theyOweMe");
     setCurrency("USD");
@@ -33,9 +37,10 @@ function Dyoun() {
 
   const addDebt = (e) => {
     e.preventDefault();
-    if (!name || !amount) return;
+    if (!name || !amount || !phone) return;
     const debtObj = {
       name,
+      phone, // <-- Save phone
       amount: parseFloat(amount),
       type,
       currency,
@@ -50,7 +55,8 @@ function Dyoun() {
           d =>
             d.name.trim().toLowerCase() === name.trim().toLowerCase() &&
             d.type === type &&
-            d.currency === currency
+            d.currency === currency &&
+            d.phone === phone // <-- Match phone too
         );
         if (idx !== -1) {
           // Add to existing
@@ -85,6 +91,7 @@ function Dyoun() {
 
   const handleEdit = (debt, idx) => {
     setName(debt.name);
+    setPhone(debt.phone || ""); // <-- Set phone
     setAmount("");
     setType(debt.type);
     setCurrency(debt.currency || "USD");
@@ -132,7 +139,7 @@ function Dyoun() {
             {activeTab === "add" && (
               <Form onSubmit={addDebt}>
                 <Row className="align-items-end">
-                  <Col xs={12} md={4}>
+                  <Col xs={12} md={3}>
                     <Form.Group controlId="debtName">
                       <Form.Label>Name</Form.Label>
                       <Form.Control
@@ -145,6 +152,18 @@ function Dyoun() {
                     </Form.Group>
                   </Col>
                   <Col xs={12} md={3}>
+                    <Form.Group controlId="debtPhone">
+                      <Form.Label>Phone</Form.Label>
+                      <Form.Control
+                        type="tel"
+                        placeholder="e.g. 96170123456"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={12} md={2}>
                     <Form.Group controlId="debtAmount">
                       <Form.Label>Amount</Form.Label>
                       <Form.Control
@@ -169,7 +188,7 @@ function Dyoun() {
                       </Form.Select>
                     </Form.Group>
                   </Col>
-                  <Col xs={12} md={3}>
+                  <Col xs={12} md={2}>
                     <Form.Group controlId="debtDate">
                       <Form.Label>Date</Form.Label>
                       <Form.Control
@@ -224,31 +243,42 @@ function Dyoun() {
                   {debts.map((debt, idx) => (
                     <ListGroup.Item key={idx}>
                       <Row>
-                        <Col xs={4}>{debt.name}</Col>
-                        <Col xs={3} className={debt.type === "theyOweMe" ? "text-success" : "text-danger"}>
+                        <Col xs={3}>{debt.name}</Col>
+                        <Col xs={3}>{debt.phone}</Col>
+                        <Col xs={2} className={debt.type === "theyOweMe" ? "text-success" : "text-danger"}>
                           {debt.type === "theyOweMe" ? "+" : "-"}
                           {debt.currency === "USD" ? "$" : "LBP "}
                           {debt.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </Col>
-                        <Col xs={3} className="text-secondary" style={{ fontSize: "0.9em" }}>
+                        <Col xs={2} className="text-secondary" style={{ fontSize: "0.9em" }}>
                           {debt.date}
                         </Col>
                         <Col xs={2} className="text-end">
-                          <Button
-                            variant="outline-secondary"
+                          <DropdownButton
+                            id={`dropdown-actions-${idx}`}
+                            title="Actions"
+                            variant="secondary"
                             size="sm"
-                            onClick={() => handleEdit(debt, idx)}
-                            className="me-1"
+                            align="end"
                           >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleDelete(idx)}
-                          >
-                            Delete
-                          </Button>
+                            <Dropdown.Item onClick={() => handleEdit(debt, idx)}>
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleDelete(idx)} className="text-danger">
+                              Delete
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              onClick={() => {
+                                const msg = encodeURIComponent(
+                                  `Hi ${debt.name}, this is a reminder that you ${debt.type === "theyOweMe" ? "owe me" : "I owe you"} ${debt.currency === "USD" ? "$" : "LBP "}${debt.amount}.`
+                                );
+                                window.open(`https://wa.me/${debt.phone}?text=${msg}`, "_blank");
+                              }}
+                              className="text-success"
+                            >
+                              Reminder
+                            </Dropdown.Item>
+                          </DropdownButton>
                         </Col>
                       </Row>
                     </ListGroup.Item>
