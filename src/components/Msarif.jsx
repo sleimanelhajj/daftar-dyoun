@@ -21,6 +21,15 @@ function Msarif() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [filterDate, setFilterDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState("view");
+  const [editIdx, setEditIdx] = useState(null);
+
+  const resetForm = () => {
+    setAmount("");
+    setDesc("");
+    setCurrency("USD");
+    setDate(new Date().toISOString().slice(0, 10));
+    setEditIdx(null);
+  };
 
   const addExpense = (e) => {
     e.preventDefault();
@@ -33,21 +42,39 @@ function Msarif() {
     } else {
       lbpAmount = parseFloat(amount) * LBP_RATE;
     }
-    setExpenses([
-      ...expenses,
-      {
-        amount: parseFloat(amount),
-        desc,
-        date,
-        currency,
-        usdAmount,
-        lbpAmount,
-      },
-    ]);
-    setAmount("");
-    setDesc("");
-    setCurrency("USD");
-    setDate(new Date().toISOString().slice(0, 10));
+    const expenseObj = {
+      amount: parseFloat(amount),
+      desc,
+      date,
+      currency,
+      usdAmount,
+      lbpAmount,
+    };
+
+    if (editIdx !== null) {
+      // Edit mode
+      const updated = [...expenses];
+      updated[editIdx] = expenseObj;
+      setExpenses(updated);
+    } else {
+      // Add mode
+      setExpenses([...expenses, expenseObj]);
+    }
+    resetForm();
+    setActiveTab("view");
+  };
+
+  const handleDelete = (idx) => {
+    setExpenses(expenses.filter((_, i) => i !== idx));
+  };
+
+  const handleEdit = (exp, idx) => {
+    setAmount(exp.amount);
+    setDesc(exp.desc);
+    setCurrency(exp.currency);
+    setDate(exp.date);
+    setEditIdx(idx);
+    setActiveTab("add");
   };
 
   // Filter expenses by selected date
@@ -67,14 +94,14 @@ function Msarif() {
             <Nav
               variant="tabs"
               activeKey={activeTab}
-              onSelect={(k) => setActiveTab(k)}
+              onSelect={(k) => { setActiveTab(k); resetForm(); }}
               className="justify-content-center mb-4"
             >
               <Nav.Item>
                 <Nav.Link eventKey="view">View Expenses</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="add">Add New Expense</Nav.Link>
+                <Nav.Link eventKey="add">{editIdx !== null ? "Edit Expense" : "Add New Expense"}</Nav.Link>
               </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="stats">Weekly Stats</Nav.Link>
@@ -131,7 +158,7 @@ function Msarif() {
                   </Col>
                   <Col xs={12} md={2} className="d-grid mt-3 mt-md-0">
                     <Button variant="primary" type="submit">
-                      Add
+                      {editIdx !== null ? "Update" : "Add"}
                     </Button>
                   </Col>
                 </Row>
@@ -192,6 +219,23 @@ function Msarif() {
                           style={{ fontSize: "0.85em" }}
                         >
                           {exp.date}
+                        </Col>
+                        <Col xs={2} className="text-end">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={() => handleEdit(exp, expenses.findIndex(e => e === exp))}
+                            className="me-1"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleDelete(expenses.findIndex(e => e === exp))}
+                          >
+                            Delete
+                          </Button>
                         </Col>
                       </Row>
                     </ListGroup.Item>
